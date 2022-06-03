@@ -56,6 +56,10 @@ public class Chunk {
                     {
                         chunkData[x, y, z] = new Block(Block.BlockType.AIR, pos, chunk.gameObject, this);
                     }
+
+                    if (worldX > 35 && worldX < 40 && worldZ > 35) {
+                        chunkData[x, y, z] = new Block(Block.BlockType.DIRT, pos, chunk.gameObject, this);
+                    }
                 }
 	}
 

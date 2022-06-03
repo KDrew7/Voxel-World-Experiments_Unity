@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class BlockInteraction : MonoBehaviour {
 
 	public GameObject cam;
@@ -14,7 +15,7 @@ public class BlockInteraction : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		RaycastHit hit;
-		if (Input.GetMouseButton(2)) {
+		if (Input.GetMouseButton(1)) {
 			if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, 100))
             {
    				Vector3 hitBlock0 = hit.point - hit.normal/2.0f; 
@@ -24,7 +25,27 @@ public class BlockInteraction : MonoBehaviour {
    				int z = (int) (Mathf.Round(hitBlock0.z) - hit.collider.gameObject.transform.position.z);
 
 				float xPrec = ((hitBlock0.x) - hit.collider.gameObject.transform.position.x) -  x;
-				Debug.Log(xPrec);
+				float zPrec = ((hitBlock0.z) - hit.collider.gameObject.transform.position.z) -  z;
+				//float angle = Vector3.Angle(hit.normal, hit);
+				//Debug.Log("hit.pt: "+hit.point + " transform.pos: "+transform.position+" transform.up: "+transform.up);
+				Vector3 from = hit.point - transform.position;
+				Vector3 to   = transform.up;
+				float angle0 = Vector3.Angle(from, to);
+				//Debug.Log(angle0);
+				// Debug.Log("preX" + xPrec);
+				// Debug.Log("preZ" + zPrec);
+				//xPrec = (xPrec*2) - .5f;
+				// zPrec = (zPrec*2) - .5f;
+				// Debug.Log(xPrec);
+				// Debug.Log(zPrec);
+
+				Vector3 hp = hit.point;
+				Vector3 tp = transform.position;
+				// double angle = Mathf.Atan((tp.y - hp.y)/( tp.x - hp.x)) * (180 / Mathf.PI);
+				float angle = Mathf.Atan((tp.x - hp.x)/( tp.z - hp.z)) * (180 / Mathf.PI);
+				//Debug.Log("pre" +  ((tp.z - hp.z)/( tp.x - hp.x)) * (180 / Mathf.PI));
+				// Debug.Log(angle);
+				// Debug.Log("post" + Mathf.Tan(angle));
 
    				List<string> updates = new List<string>();
    				float thisChunkx = hit.collider.gameObject.transform.position.x;
@@ -51,11 +72,27 @@ public class BlockInteraction : MonoBehaviour {
 					DestroyImmediate(c.chunk.GetComponent<MeshRenderer>());
 					DestroyImmediate(c.chunk.GetComponent<Collider>());
 
+					
 					if (c.chunkData[x,y,z].init == false) {
-					c.chunkData[x,y,z].q0 = new Vector3(  Random.Range(-0.3f,0.3f), -0.5f, -0.5f);
-					c.chunkData[x,y,z].q1 = new Vector3(  Random.Range(-0.3f,0.3f), -0.5f,  0.5f);
-					c.chunkData[x,y,z].q2 = new Vector3(  Random.Range(-0.3f,0.3f),  0.5f, -0.5f);
-					c.chunkData[x,y,z].q3 = new Vector3(  Random.Range(-0.3f,0.3f),  0.5f,  0.5f);
+
+						float intercept = (tp.x - hp.x)/( tp.z - hp.z);
+						Debug.Log(intercept);
+						intercept = intercept * (-1);
+
+						if (zPrec > -9999) {
+							c.chunkData[x,y,z].q0 = new Vector3(  intercept, -0.5f, -0.5f);
+							c.chunkData[x,y,z].q1 = new Vector3(  xPrec, -0.5f,  0.5f);
+							c.chunkData[x,y,z].q2 = new Vector3(  intercept,  0.5f, -0.5f);
+							c.chunkData[x,y,z].q3 = new Vector3(  xPrec,  0.5f,  0.5f);
+						}
+
+						else {
+							c.chunkData[x,y,z].q0 = new Vector3(  xPrec, -0.5f, -0.5f);
+							c.chunkData[x,y,z].q1 = new Vector3(  Random.Range(-0.3f,0.3f), -0.5f,  0.5f);
+							c.chunkData[x,y,z].q2 = new Vector3(  xPrec,  0.5f, -0.5f);
+							c.chunkData[x,y,z].q3 = new Vector3(  Random.Range(-0.3f,0.3f),  0.5f,  0.5f);
+						}
+					
 					c.chunkData[x,y,z].init = true;
 					}
 
@@ -63,7 +100,7 @@ public class BlockInteraction : MonoBehaviour {
 					// c.chunkData[x0,y0,z0].q1 = new Vector3( 0.0f, -0.2f,  0.2f);
 					// c.chunkData[x0,y0,z0].q2 = new Vector3( 0.0f,  0.3f, -0.1f);
 					// c.chunkData[x0,y0,z0].q3 = new Vector3( 0.0f,  0.1f,  0.2f);
-					if(xPrec > .25)
+					if(xPrec > 0)
 						c.chunkData[x,y,z].SetType(Block.BlockType.REDSTONER);
 					else 
 						c.chunkData[x,y,z].SetType(Block.BlockType.REDSTONEL);
@@ -142,7 +179,7 @@ public class BlockInteraction : MonoBehaviour {
 		   	}
    		}
 
-		if (Input.GetMouseButtonDown(1)) {
+		if (Input.GetMouseButtonDown(2)) {
 			if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, 100)) {
 			Vector3 hitBlock = hit.point + hit.normal/2.0f; 
 

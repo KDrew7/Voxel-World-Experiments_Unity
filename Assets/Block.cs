@@ -15,10 +15,10 @@ public class Block {
 	Vector3 position;
 
 	public bool init = false;
-	public Vector3 q0;
-	public Vector3 q1;
-	public Vector3 q2;
-	public Vector3 q3;
+	public Vector3 q0 = new Vector3( 0.0f, -0.5f, -0.5f);
+	public Vector3 q1 = new Vector3( 0.0f, -0.5f, 0.5f);
+	public Vector3 q2 = new Vector3( 0.0f, 0.5f, -0.5f);
+	public Vector3 q3 = new Vector3( 0.0f, 0.5f, 0.5f);
 
 	Vector2[,] blockUVs = { 
 		/*GRASS TOP*/		{new Vector2( 0.125f, 0.375f ), new Vector2( 0.1875f, 0.375f),
