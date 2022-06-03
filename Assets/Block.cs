@@ -2,16 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Block {
 
-	enum Cubeside {BOTTOM, TOP, LEFT, RIGHT, FRONT, BACK, BOTTOML,BOTTOMR,TOPL,TOPR,FRONTL,FRONTR,BACKL,BACKR};
-	public enum BlockType {GRASS, DIRT, STONE, BEDROCK, REDSTONE, DIAMOND, AIR, SPLIT};
+	enum Cubeside {BOTTOM, TOP, LEFT, RIGHT, FRONT, BACK, BOTTOML,BOTTOMR,TOPL,TOPR,FRONTL,FRONTR,BACKL,BACKR,MIDDLEL,MIDDLER};
+	public enum BlockType {GRASS, DIRT, STONE, BEDROCK, REDSTONE, DIAMOND, AIR, REDSTONEL, REDSTONER};
 
 	public BlockType bType;
 	public bool isSolid;
 	Chunk owner;
 	GameObject parent;
 	Vector3 position;
+
+	public bool init = false;
+	public Vector3 q0;
+	public Vector3 q1;
+	public Vector3 q2;
+	public Vector3 q3;
 
 	Vector2[,] blockUVs = { 
 		/*GRASS TOP*/		{new Vector2( 0.125f, 0.375f ), new Vector2( 0.1875f, 0.375f),
@@ -63,125 +70,144 @@ public class Block {
 			isSolid = true;
 	}
 
+	public Vector3 getq0() {
+		return q0;
+	}
+
 
 	void CreateQuad(Cubeside side)
 	{
 		Mesh mesh = new Mesh();
 	    mesh.name = "ScriptedMesh" + side.ToString(); 
 
-		if (bType == BlockType.REDSTONE) {
-		Vector3[] vertices = new Vector3[4];
-		Vector3[] normals = new Vector3[4];
-		Vector2[] uvs = new Vector2[4];
-		int[] triangles = new int[6];
+		if (bType == BlockType.REDSTONEL || bType == BlockType.REDSTONER) {
+			Vector3[] vertices = new Vector3[4];
+			Vector3[] normals = new Vector3[4];
+			Vector2[] uvs = new Vector2[4];
+			int[] triangles = new int[6];
 
-		//all possible UVs
-		
+			//all possible UVs
+			
 
-		
-		Vector2 uv00 = blockUVs[(int)(bType+1),0];
-		Vector2 uv10 = blockUVs[(int)(bType+1),1];
-		Vector2 uv01 = blockUVs[(int)(bType+1),2];
-		Vector2 uv11 = blockUVs[(int)(bType+1),3];
-		Vector2 vv00 = blockUVs[(int)(BlockType.STONE+1),0];
-		Vector2 vv10 = blockUVs[(int)(BlockType.STONE+1),1];
-		Vector2 vv01 = blockUVs[(int)(BlockType.STONE+1),2];
-		Vector2 vv11 = blockUVs[(int)(BlockType.STONE+1),3];
-		
+			
+			Vector2 uv00 = blockUVs[(int)(BlockType.REDSTONE+1),0];
+			Vector2 uv10 = blockUVs[(int)(BlockType.REDSTONE+1),1];
+			Vector2 uv01 = blockUVs[(int)(BlockType.REDSTONE+1),2];
+			Vector2 uv11 = blockUVs[(int)(BlockType.REDSTONE+1),3];
+			Vector2 vv00 = blockUVs[(int)(BlockType.STONE+1),0];
+			Vector2 vv10 = blockUVs[(int)(BlockType.STONE+1),1];
+			Vector2 vv01 = blockUVs[(int)(BlockType.STONE+1),2];
+			Vector2 vv11 = blockUVs[(int)(BlockType.STONE+1),3];
+			
 
-		//all possible vertices 
-		Vector3 p0 = new Vector3( -0.5f,  -0.5f,  0.5f );
-		Vector3 p1 = new Vector3(  0.5f,  -0.5f,  0.5f );
-		Vector3 p2 = new Vector3(  0.5f,  -0.5f, -0.5f );
-		Vector3 p3 = new Vector3( -0.5f,  -0.5f, -0.5f );		 
-		Vector3 p4 = new Vector3( -0.5f,   0.5f,  0.5f );
-		Vector3 p5 = new Vector3(  0.5f,   0.5f,  0.5f );
-		Vector3 p6 = new Vector3(  0.5f,   0.5f, -0.5f );
-		Vector3 p7 = new Vector3( -0.5f,   0.5f, -0.5f );
+			//all possible vertices 
+			Vector3 p0 = new Vector3( -0.5f,  -0.5f,  0.5f );
+			Vector3 p1 = new Vector3(  0.5f,  -0.5f,  0.5f );
+			Vector3 p2 = new Vector3(  0.5f,  -0.5f, -0.5f );
+			Vector3 p3 = new Vector3( -0.5f,  -0.5f, -0.5f );		 
+			Vector3 p4 = new Vector3( -0.5f,   0.5f,  0.5f );
+			Vector3 p5 = new Vector3(  0.5f,   0.5f,  0.5f );
+			Vector3 p6 = new Vector3(  0.5f,   0.5f, -0.5f );
+			Vector3 p7 = new Vector3( -0.5f,   0.5f, -0.5f );
 
-		Vector3 q0 = new Vector3( 0.0f, -0.5f, -0.5f);
-		Vector3 q1 = new Vector3( 0.0f, -0.5f,  0.5f);
-		Vector3 q2 = new Vector3( 0.0f,  0.5f, -0.5f);
-		Vector3 q3 = new Vector3( 0.0f,  0.5f,  0.5f);
+			// q0 = new Vector3( 0.0f, -0.5f, -0.5f);
+			// q1 = new Vector3( 0.0f, -0.5f,  0.5f);
+			// q2 = new Vector3( 0.0f,  0.5f, -0.5f);
+			// q3 = new Vector3( 0.0f,  0.5f,  0.5f);
+			
 
 
-		switch(side)
-		{
-			case Cubeside.BOTTOML:
-				vertices = new Vector3[] {p0, q1, q2, p3};
-				normals = new Vector3[] {Vector3.down, Vector3.down, 
-											Vector3.down, Vector3.down};
-				uvs = new Vector2[] {uv11, uv01, uv00, uv10};
-				triangles = new int[] { 3, 1, 0, 3, 2, 1};
-			break;
-			case Cubeside.BOTTOMR:
-				vertices = new Vector3[] {p0, p1, p2, p3};
-				normals = new Vector3[] {Vector3.down, Vector3.down, 
-											Vector3.down, Vector3.down};
-				uvs = new Vector2[] {uv11, uv01, uv00, uv10};
-				triangles = new int[] { 3, 1, 0, 3, 2, 1};
-			break;
-			case Cubeside.TOPL:
-				vertices = new Vector3[] {p7, q2, q3, p4};
-				normals = new Vector3[] {Vector3.up, Vector3.up, 
-											Vector3.up, Vector3.up};
-				uvs = new Vector2[] {uv11, uv01, uv00, uv10};
-				triangles = new int[] {3, 1, 0, 3, 2, 1};
-			break;
-			case Cubeside.TOPR:
-				vertices = new Vector3[] {q2, p6, p5, q3};
-				normals = new Vector3[] {Vector3.up, Vector3.up, 
-											Vector3.up, Vector3.up};
-				uvs = new Vector2[] {vv11, vv01, vv00, vv10};
-				triangles = new int[] {3, 1, 0, 3, 2, 1};
-			break;
-			case Cubeside.LEFT:
-				vertices = new Vector3[] {p7, p4, p0, p3};
-				normals = new Vector3[] {Vector3.left, Vector3.left, 
-											Vector3.left, Vector3.left};
-				uvs = new Vector2[] {uv11, uv01, uv00, uv10};
-				triangles = new int[] {3, 1, 0, 3, 2, 1};
-			break;
-			case Cubeside.RIGHT:
-				vertices = new Vector3[] {p5, p6, p2, p1};
-				normals = new Vector3[] {Vector3.right, Vector3.right, 
-											Vector3.right, Vector3.right};
-				uvs = new Vector2[] {uv11, uv01, uv00, uv10};
-				triangles = new int[] {3, 1, 0, 3, 2, 1};
-			break;
-			case Cubeside.FRONTL:
-				vertices = new Vector3[] {p4, p5, p1, p0};
-				normals = new Vector3[] {Vector3.forward, Vector3.forward, 
-											Vector3.forward, Vector3.forward};
-				uvs = new Vector2[] {uv11, uv01, uv00, uv10};
-				triangles = new int[] {3, 1, 0, 3, 2, 1};
-			break;
-			case Cubeside.FRONTR:
-				vertices = new Vector3[] {p4, p5, p1, p0};
-				normals = new Vector3[] {Vector3.forward, Vector3.forward, 
-											Vector3.forward, Vector3.forward};
-				uvs = new Vector2[] {uv11, uv01, uv00, uv10};
-				triangles = new int[] {3, 1, 0, 3, 2, 1};
-			break;
-			case Cubeside.BACKL:
-				vertices = new Vector3[] {p6, p7, p3, p2};
-				normals = new Vector3[] {Vector3.back, Vector3.back, 
-											Vector3.back, Vector3.back};
-				uvs = new Vector2[] {uv11, uv01, uv00, uv10};
-				triangles = new int[] {3, 1, 0, 3, 2, 1};
-			break;
-			case Cubeside.BACKR:
-				vertices = new Vector3[] {p6, p7, p3, p2};
-				normals = new Vector3[] {Vector3.back, Vector3.back, 
-											Vector3.back, Vector3.back};
-				uvs = new Vector2[] {uv11, uv01, uv00, uv10};
-				triangles = new int[] {3, 1, 0, 3, 2, 1};
-			break;
-		}
-		mesh.vertices = vertices;
-		mesh.normals = normals;
-		mesh.uv = uvs;
-		mesh.triangles = triangles;
+			switch(side)
+			{
+				case Cubeside.BOTTOML:
+					vertices = new Vector3[] {p0, q1, q0, p3};
+					normals = new Vector3[] {Vector3.down, Vector3.down, 
+												Vector3.down, Vector3.down};
+					uvs = new Vector2[] {uv11, uv01, uv00, uv10};
+					triangles = new int[] { 3, 1, 0, 3, 2, 1};
+				break;
+				case Cubeside.BOTTOMR:
+					vertices = new Vector3[] {p0, p1, p2, p3};
+					normals = new Vector3[] {Vector3.down, Vector3.down, 
+												Vector3.down, Vector3.down};
+					uvs = new Vector2[] {uv11, uv01, uv00, uv10};
+					triangles = new int[] { 3, 1, 0, 3, 2, 1};
+				break;
+				case Cubeside.TOPL:
+					vertices = new Vector3[] {p7, q2, q3, p4};
+					normals = new Vector3[] {Vector3.up, Vector3.up, 
+												Vector3.up, Vector3.up};
+					uvs = new Vector2[] {uv11, uv01, uv00, uv10};
+					triangles = new int[] {3, 1, 0, 3, 2, 1};
+				break;
+				case Cubeside.TOPR:
+					vertices = new Vector3[] {q2, p6, p5, q3};
+					normals = new Vector3[] {Vector3.up, Vector3.up, 
+												Vector3.up, Vector3.up};
+					uvs = new Vector2[] {vv11, vv01, vv00, vv10};
+					triangles = new int[] {3, 1, 0, 3, 2, 1};
+				break;
+				case Cubeside.LEFT:
+					vertices = new Vector3[] {p7, p4, p0, p3};
+					normals = new Vector3[] {Vector3.left, Vector3.left, 
+												Vector3.left, Vector3.left};
+					uvs = new Vector2[] {uv11, uv01, uv00, uv10};
+					triangles = new int[] {3, 1, 0, 3, 2, 1};
+				break;
+				case Cubeside.RIGHT:
+					vertices = new Vector3[] {p5,p6,p2,p1};
+					normals = new Vector3[] {Vector3.right, Vector3.right, 
+												Vector3.right, Vector3.right};
+					uvs = new Vector2[] {uv11, uv01, uv00, uv10};
+					triangles = new int[] {3, 1, 0, 3, 2, 1};
+				break;
+				case Cubeside.FRONTL:
+					vertices = new Vector3[] {q1, p0, p4, q3};
+					normals = new Vector3[] {Vector3.forward, Vector3.forward, 
+												Vector3.forward, Vector3.forward};
+					uvs = new Vector2[] {uv11, uv01, uv00, uv10};
+					triangles = new int[] {3, 1, 0, 3, 2, 1};
+				break;
+				case Cubeside.FRONTR:
+					vertices = new Vector3[] { p5, p1, q1, q3};
+					normals = new Vector3[] {Vector3.forward, Vector3.forward, 
+												Vector3.forward, Vector3.forward};
+					uvs = new Vector2[] {uv11, uv01, uv00, uv10};
+					triangles = new int[] {3, 1, 0, 3, 2, 1};
+				break;
+				case Cubeside.BACKL:
+					vertices = new Vector3[] {p7, p3 , q0, q2   };
+					normals = new Vector3[] {Vector3.back, Vector3.back, 
+												Vector3.back, Vector3.back};
+					uvs = new Vector2[] {uv11, uv01, uv00, uv10};
+					triangles = new int[] {3, 1, 0, 3, 2, 1};
+				break;
+				case Cubeside.BACKR:
+					vertices = new Vector3[] {p6, q2, q0, p2};
+					normals = new Vector3[] {Vector3.back, Vector3.back, 
+												Vector3.back, Vector3.back};
+					uvs = new Vector2[] {uv11, uv01, uv00, uv10};
+					triangles = new int[] {3, 1, 0, 3, 2, 1};
+				break;
+				case Cubeside.MIDDLEL:
+					vertices = new Vector3[] {q2, q0,q1,q3};
+					normals = new Vector3[] {Vector3.right, Vector3.right, 
+												Vector3.right, Vector3.right};
+					uvs = new Vector2[] {uv11, uv01, uv00, uv10};
+					triangles = new int[] {3, 1, 0, 3, 2, 1};
+				break;
+				case Cubeside.MIDDLER:
+					vertices = new Vector3[] {q2, q3, q1,q0};
+					normals = new Vector3[] {Vector3.right, Vector3.right, 
+												Vector3.right, Vector3.right};
+					uvs = new Vector2[] {uv11, uv01, uv00, uv10};
+					triangles = new int[] {3, 1, 0, 3, 2, 1};
+				break;
+			}
+			mesh.vertices = vertices;
+			mesh.normals = normals;
+			mesh.uv = uvs;
+			mesh.triangles = triangles;
 		}
 
 
@@ -337,6 +363,8 @@ public class Block {
 			{
 				chunks = nChunk.chunkData;
 			}
+
+
 			else
 				return false;
 		}  //block in this chunk
@@ -345,6 +373,9 @@ public class Block {
 		
 		try
 		{
+			if (chunks[x,y,z].bType == BlockType.REDSTONEL || chunks[x,y,z].bType == BlockType.REDSTONER)
+				return false;
+
 			return chunks[x,y,z].isSolid;
 		}
 		catch(System.IndexOutOfRangeException){}
@@ -354,28 +385,44 @@ public class Block {
 
 	public void Draw()
 	{
-		if(bType == BlockType.REDSTONE) {
-			if(!HasSolidNeighbour((int)position.x,(int)position.y,(int)position.z + 1))
+
+		if(bType == BlockType.REDSTONEL) {
+			//if (Random.Range(0,10) < 5) {
 				CreateQuad(Cubeside.FRONTL);
-				CreateQuad(Cubeside.FRONTR);
-			if(!HasSolidNeighbour((int)position.x,(int)position.y,(int)position.z - 1))
 				CreateQuad(Cubeside.BACKL);
-				CreateQuad(Cubeside.BACKR);
-			if(!HasSolidNeighbour((int)position.x,(int)position.y + 1,(int)position.z))
 				CreateQuad(Cubeside.TOPL);
-				CreateQuad(Cubeside.TOPR);
-			if(!HasSolidNeighbour((int)position.x,(int)position.y - 1,(int)position.z))
 				CreateQuad(Cubeside.BOTTOML);
-				CreateQuad(Cubeside.BOTTOMR);
-			if(!HasSolidNeighbour((int)position.x - 1,(int)position.y,(int)position.z))
 				CreateQuad(Cubeside.LEFT);
-			if(!HasSolidNeighbour((int)position.x + 1,(int)position.y,(int)position.z))
-				CreateQuad(Cubeside.RIGHT);
+				CreateQuad(Cubeside.MIDDLEL);
+
+
+
+
+
 		}
+				
+				else if (bType == BlockType.REDSTONER){
+				CreateQuad(Cubeside.FRONTR);
+			
+				
+				CreateQuad(Cubeside.BACKR);
+			
+				
+				CreateQuad(Cubeside.TOPR);
+			
+				
+				CreateQuad(Cubeside.BOTTOMR);
+			
+				
+			
+				CreateQuad(Cubeside.RIGHT);
+				CreateQuad(Cubeside.MIDDLER);
+				}	
+		
 		
 		else {
 
-		if(bType == BlockType.AIR) return;
+		if(bType == BlockType.AIR ) return;
 
 		if(!HasSolidNeighbour((int)position.x,(int)position.y,(int)position.z + 1))
 			CreateQuad(Cubeside.FRONT);
